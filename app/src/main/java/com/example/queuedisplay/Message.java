@@ -21,6 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class Message extends AppCompatActivity {
 
     private String ticketId;
@@ -40,10 +43,29 @@ public class Message extends AppCompatActivity {
         messageTV = findViewById(R.id.fullMessageTV);
         mQueue = Volley.newRequestQueue(this);
 
-        getNotifications();
+        Timer t = new Timer();
+        t.scheduleAtFixedRate(
+                new TimerTask()
+                {
+                    public void run()
+                    {
 
-        String message = showMessage();
-        messageTV.setText(message);
+                            getNotifications();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showMessage();
+                            }
+                        });
+                    }
+                },
+                0,      // run first occurrence after 2 seconds
+                5000); // run every minute
+
+
+
+
 
 
     }
@@ -112,8 +134,11 @@ public class Message extends AppCompatActivity {
             {
 
                 String message = c.getString(0);
+
+                messageTV.setText(message);
                 return  message;
             }
+
             db.close();
             return "No message has been added yet.";
         }
